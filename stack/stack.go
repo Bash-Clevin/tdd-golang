@@ -1,20 +1,18 @@
 package stack
 
 type Stack struct {
-	isEmpty bool
-	size    int
+	size int
 }
 
 func NewStack() *Stack {
-	return &Stack{isEmpty: true, size: 0}
+	return &Stack{size: 0}
 }
 
 func (s *Stack) Empty() bool {
-	return s.isEmpty
+	return s.size == 0
 }
 
 func (s *Stack) Add(val string) {
-	s.isEmpty = false
 	s.size++
 }
 
