@@ -52,3 +52,35 @@ func TestSizeThree(t *testing.T) {
 		t.Errorf("Expected 3, found %d", s.Size())
 	}
 }
+
+func TestPopOne(t *testing.T) {
+	s := stack.NewStack()
+	s.Add("Bob")
+
+	v := s.Pop()
+	if v != "Bob" {
+		t.Errorf("Expected Bob, found %s", v)
+	}
+
+	if s.Size() != 0 {
+		t.Errorf("Expected size 0, found %d", s.Size())
+	}
+}
+
+func TestPopTwo(t *testing.T) {
+	s := stack.NewStack()
+	s.Add("Bob")
+	s.Add("Alex")
+
+	v := s.Pop()
+
+	if v != "Alex" {
+		t.Errorf("Expected Alex, found %s", v)
+	}
+
+	v2 := s.Pop()
+
+	if v2 != "Bob" {
+		t.Errorf("Expected Bob, found %s", v2)
+	}
+}
