@@ -26,12 +26,12 @@ var (
 	ErrBookNotFound = errors.New("Book not found")
 )
 
-type BookRetriver interface {
+type BookRetriever interface {
 	GetBook(isbn string) (Book, error)
 }
 
 type GetBookHandler struct {
-	br BookRetriver
+	br BookRetriever
 }
 
 func (g GetBookHandler) ServeHttp(w http.ResponseWriter, r *http.Request) {
@@ -69,6 +69,6 @@ func (g GetBookHandler) ServeHttp(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func NewGetBookHandler(br BookRetriver) GetBookHandler {
+func NewGetBookHandler(br BookRetriever) GetBookHandler {
 	return GetBookHandler{br}
 }
