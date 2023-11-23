@@ -1,6 +1,7 @@
 package rest_test
 
 import (
+	"errors"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -70,6 +71,24 @@ func (s *GetBookSuite) TestGetBookThatDoesExist() {
 	}`
 
 	s.JSONEq(expectedBody, string(body))
+}
+
+func (s *GetBookSuite) TestBookReturnUnexpectedError() {
+	req, _ := http.NewRequest(http.MethodGet, "/book/123456789", nil)
+	req = mux.SetURLVars(req, map[string]string{"isbn": "123456789"})
+	resp := httptest.NewRecorder()
+
+	br := new(MockBookRetriever)
+	br.On("GetBook", "123456789").Return(rest.Book{}, errors.New("unexpected error"))
+
+	h := rest.NewGetBookHandler(br)
+
+	h.ServeHttp(resp, req)
+
+	body, _ := io.ReadAll(resp.Body)
+
+	s.Equal(http.StatusInternalServerError, resp.Code)
+	s.JSONEq(`{"code": "002", "msg": "Error attempting to get book"}`, string(body))
 }
 
 type MockBookRetriever struct {
