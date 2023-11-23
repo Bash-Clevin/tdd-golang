@@ -43,17 +43,14 @@ func (g GetBookHandler) ServeHttp(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		var e jsonError
 		if err == ErrBookNotFound {
-			e = jsonError{
-				Code: "001",
-				Msg:  fmt.Sprintf("No Book with ISBN %s", isbn),
-			}
+			e.Code = "001"
+			e.Msg = fmt.Sprintf("No Book with ISBN %s", isbn)
 
 			w.WriteHeader(http.StatusNotFound)
 		} else {
-			e = jsonError{
-				Code: "002",
-				Msg:  "Error attempting to get book",
-			}
+			e.Code = "002"
+			e.Msg = "Error attempting to get book"
+
 			w.WriteHeader(http.StatusInternalServerError)
 		}
 

@@ -21,15 +21,29 @@ func TestGetBookSuite(t *testing.T) {
 	suite.Run(t, new(GetBookSuite))
 }
 
-func (s *GetBookSuite) TestGetBookThatDoesNotExist() {
-	req, _ := http.NewRequest(http.MethodGet, "/book/123456789", nil)
+var (
+	req  *http.Request
+	resp *httptest.ResponseRecorder
+	br   *MockBookRetriever
+	h    rest.GetBookHandler
+)
+
+// Runs before each test case
+func (s *GetBookSuite) SetupTest() {
+	req, _ = http.NewRequest(http.MethodGet, "/book/123456789", nil)
+
 	req = mux.SetURLVars(req, map[string]string{"isbn": "123456789"})
-	resp := httptest.NewRecorder()
 
-	br := new(MockBookRetriever)
+	resp = httptest.NewRecorder()
+
+	br = new(MockBookRetriever)
+
+	h = rest.NewGetBookHandler(br)
+}
+
+func (s *GetBookSuite) TestGetBookThatDoesNotExist() {
+
 	br.On("GetBook", "123456789").Return(rest.Book{}, rest.ErrBookNotFound)
-
-	h := rest.NewGetBookHandler(br)
 
 	h.ServeHttp(resp, req)
 
@@ -40,11 +54,6 @@ func (s *GetBookSuite) TestGetBookThatDoesNotExist() {
 }
 
 func (s *GetBookSuite) TestGetBookThatDoesExist() {
-	req, _ := http.NewRequest(http.MethodGet, "/book/123456789", nil)
-	req = mux.SetURLVars(req, map[string]string{"isbn": "123456789"})
-	resp := httptest.NewRecorder()
-
-	br := new(MockBookRetriever)
 	book := rest.Book{
 		ISBN:          "987654321",
 		Name:          "Testing all stuff",
@@ -54,13 +63,11 @@ func (s *GetBookSuite) TestGetBookThatDoesExist() {
 	}
 	br.On("GetBook", "123456789").Return(book, nil)
 
-	h := rest.NewGetBookHandler(br)
-
 	h.ServeHttp(resp, req)
 
-	body, _ := io.ReadAll(resp.Body)
-
 	s.Equal(http.StatusOK, resp.Code)
+
+	body, _ := io.ReadAll(resp.Body)
 
 	expectedBody := `{
 		"isbn": "987654321",
@@ -74,14 +81,7 @@ func (s *GetBookSuite) TestGetBookThatDoesExist() {
 }
 
 func (s *GetBookSuite) TestBookReturnUnexpectedError() {
-	req, _ := http.NewRequest(http.MethodGet, "/book/123456789", nil)
-	req = mux.SetURLVars(req, map[string]string{"isbn": "123456789"})
-	resp := httptest.NewRecorder()
-
-	br := new(MockBookRetriever)
 	br.On("GetBook", "123456789").Return(rest.Book{}, errors.New("unexpected error"))
-
-	h := rest.NewGetBookHandler(br)
 
 	h.ServeHttp(resp, req)
 
