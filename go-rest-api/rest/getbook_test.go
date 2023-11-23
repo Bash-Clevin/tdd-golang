@@ -45,7 +45,7 @@ func (s *GetBookSuite) TestGetBookThatDoesNotExist() {
 
 	br.On("GetBook", "123456789").Return(rest.Book{}, rest.ErrBookNotFound)
 
-	h.ServeHttp(resp, req)
+	h.ServeHTTP(resp, req)
 
 	body, _ := io.ReadAll(resp.Body)
 
@@ -63,7 +63,7 @@ func (s *GetBookSuite) TestGetBookThatDoesExist() {
 	}
 	br.On("GetBook", "123456789").Return(book, nil)
 
-	h.ServeHttp(resp, req)
+	h.ServeHTTP(resp, req)
 
 	s.Equal(http.StatusOK, resp.Code)
 
@@ -83,7 +83,7 @@ func (s *GetBookSuite) TestGetBookThatDoesExist() {
 func (s *GetBookSuite) TestBookReturnUnexpectedError() {
 	br.On("GetBook", "123456789").Return(rest.Book{}, errors.New("unexpected error"))
 
-	h.ServeHttp(resp, req)
+	h.ServeHTTP(resp, req)
 
 	body, _ := io.ReadAll(resp.Body)
 

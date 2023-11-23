@@ -34,7 +34,7 @@ type GetBookHandler struct {
 	br BookRetriever
 }
 
-func (g GetBookHandler) ServeHttp(w http.ResponseWriter, r *http.Request) {
+func (g GetBookHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	v := mux.Vars(r)
 	isbn := v["isbn"]
 
