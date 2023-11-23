@@ -3,12 +3,13 @@ package main
 import (
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"time"
 
+	"github.com/Bash-Clevin/tdd-golang/go-rest-api/book"
+	"github.com/Bash-Clevin/tdd-golang/go-rest-api/rest"
 	"github.com/golang-migrate/migrate"
 	"github.com/golang-migrate/migrate/database/postgres"
 
@@ -25,14 +26,6 @@ type health struct {
 type jsonError struct {
 	Code string `json:"code"`
 	Msg  string `json:"msg"`
-}
-
-type Book struct {
-	ISBN          string `json:"isbn"`
-	Name          string `json:"name"`
-	Image         string `json:"image"`
-	Genre         string `json:"genre"`
-	YearPublished int    `json:"year_published"`
 }
 
 func main() {
@@ -61,6 +54,10 @@ func main() {
 
 	r := mux.NewRouter()
 
+	retriever := book.NewRetriever(db)
+
+	r.Handle("/book/{isbn}", rest.NewGetBookHandler(retriever))
+
 	r.HandleFunc("/healthcheck", func(w http.ResponseWriter, r *http.Request) {
 		h := health{
 			Status:   "OK",
@@ -69,46 +66,9 @@ func main() {
 
 		b, _ := json.Marshal(h)
 
+		w.WriteHeader(http.StatusOK)
+
 		w.Write(b)
-
-		w.WriteHeader(http.StatusOK)
-	})
-
-	r.HandleFunc("/book/{isbn}", func(w http.ResponseWriter, r *http.Request) {
-		v := mux.Vars(r)
-
-		isbn := v["isbn"]
-		e := jsonError{
-			Code: "001",
-			Msg:  fmt.Sprintf("No Book with ISBN %s", isbn),
-		}
-
-		b := Book{}
-		row := db.QueryRow("SELECT isbn, name, image, genre, year_published FROM book WHERE isbn = $1", isbn)
-		err := row.Scan(
-			&b.ISBN,
-			&b.Name,
-			&b.Image,
-			&b.Genre,
-			&b.YearPublished,
-		)
-
-		if err != nil {
-			body, _ := json.Marshal(e)
-
-			w.WriteHeader(http.StatusNotFound)
-
-			w.Write(body)
-
-			return
-		}
-
-		body, _ := json.Marshal(b)
-
-		w.WriteHeader(http.StatusOK)
-
-		w.Write(body)
-
 	})
 
 	s := http.Server{
