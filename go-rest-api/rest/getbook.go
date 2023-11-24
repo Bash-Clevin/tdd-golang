@@ -24,6 +24,7 @@ type jsonError struct {
 
 var (
 	ErrBookNotFound = errors.New("Book not found")
+	ErrInvalidISBN  = errors.New("Invalid ISBN")
 )
 
 type BookRetriever interface {
@@ -47,6 +48,11 @@ func (g GetBookHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			e.Msg = fmt.Sprintf("No Book with ISBN %s", isbn)
 
 			w.WriteHeader(http.StatusNotFound)
+		} else if err == ErrInvalidISBN {
+			e.Code = "003"
+			e.Msg = "ISBN is invalid"
+
+			w.WriteHeader(http.StatusBadRequest)
 		} else {
 			e.Code = "002"
 			e.Msg = "Error attempting to get book"

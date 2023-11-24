@@ -23,11 +23,6 @@ type health struct {
 	Messages []string `json:"messages"`
 }
 
-type jsonError struct {
-	Code string `json:"code"`
-	Msg  string `json:"msg"`
-}
-
 func main() {
 	db, err := sql.Open("postgres", os.Getenv("DATABASE_URL"))
 	if err != nil {
@@ -54,7 +49,9 @@ func main() {
 
 	r := mux.NewRouter()
 
-	retriever := book.NewRetriever(db)
+	dbRetriever := book.NewDBRetriever(db)
+
+	retriever := book.NewRetriever(dbRetriever)
 
 	r.Handle("/book/{isbn}", rest.NewGetBookHandler(retriever))
 
