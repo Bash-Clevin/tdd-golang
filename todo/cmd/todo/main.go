@@ -13,7 +13,7 @@ const todoFileName = ".todo.json"
 func main() {
 	// Parsing command line flags
 
-	task := flag.String("task", "", "Task to be included int eh ToDo list")
+	task := flag.String("task", "", "Task to be included in the ToDo list")
 	list := flag.Bool("list", false, "List all tasks")
 	complete := flag.Int("complete", 0, "Item to be completed")
 
@@ -31,11 +31,7 @@ func main() {
 	// For no extra arguments, print the list
 	case *list:
 		// List current todo items
-		for _, item := range *l {
-			if !item.Done {
-				fmt.Println(item.Task)
-			}
-		}
+		fmt.Print(l)
 	case *complete > 0:
 		// Complete the given item
 		if err := l.Complete(*complete); err != nil {
