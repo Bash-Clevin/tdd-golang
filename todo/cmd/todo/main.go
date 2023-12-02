@@ -8,9 +8,14 @@ import (
 	"github.com/Bash-Clevin/tdd-golang/todo"
 )
 
-const todoFileName = ".todo.json"
+var todoFileName = ".todo.json"
 
 func main() {
+	// Check if the user defined the ENV VAR for a custom file name
+	if os.Getenv("TODO_FILENAME") != "" {
+		todoFileName = os.Getenv("TODO_FILENAME")
+	}
+
 	// Parsing command line flags
 
 	task := flag.String("task", "", "Task to be included in the ToDo list")
